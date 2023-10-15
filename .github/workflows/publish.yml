@@ -7,12 +7,12 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: checkout
-              uses: actions/checkout@v2
-            - name: node
-              uses: actions/setup-node@v2
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
               with:
-                  node-version: '16.x'
-                  registry-url: https://registry.npmjs.org
+                node-version: 16
+                registry-url: https://registry.npmjs.org
+                scope: '@dajuly20'
             - name: Install dependencies and build 🔧
               run: npm ci && npm run build
             - name: Publish package on NPM 📦 
