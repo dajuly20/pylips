@@ -15,11 +15,11 @@ from requests.auth import HTTPDigestAuth
 import paho.mqtt.client as mqttc
 import os 
 
-# Suppress "Unverified HTTPS request is being made" error message
+# Suppress "Unverified HTTP request is being made" error message
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 session = requests.Session()
 session.verify = False
-session.mount('https://', requests.adapters.HTTPAdapter(pool_connections=1))
+session.mount('http://', requests.adapters.HTTPAdapter(pool_connections=1))
 
 # Key used for generated the HMAC signature
 secret_key="JCqdN5AcnAHgJYseUn7ER5k3qgtemfUvMRghQpTfTZq7Cvv8EPQPqfz6dDxPQPSu4gKFPWkJGw32zyASgJkHwCjU"
@@ -71,9 +71,9 @@ class Pylips:
             if args.user and args.password:
                 self.config["TV"]["user"] = args.user
                 self.config["TV"]["pass"] = args.password
-                self.config["TV"]["port"] = "1926"
-                self.config["TV"]["protocol"] = "https://"
-            elif (len(self.config["TV"]["user"])==0 or len(self.config["TV"]["pass"])==0) and self.config["TV"]["port"] == 1926:
+                self.config["TV"]["port"] = "1925"
+                self.config["TV"]["protocol"] = "http://"
+            elif (len(self.config["TV"]["user"])==0 or len(self.config["TV"]["pass"])==0) and self.config["TV"]["port"] == 1925:
                 return print ("If you have an Android TV, please provide both a username and a password (--user and --pass)")
             if len(args.apiv) != 0:
                 self.config["TV"]["apiv"]=args.apiv
@@ -155,8 +155,8 @@ class Pylips:
                         print("Could not find a valid API version! Pylips will try to use '", api_version, "'" )
                         self.config["TV"]["apiv"] = str(api_version)
                     if "featuring" in r.json() and "systemfeatures" in r.json()["featuring"] and "pairing_type" in r.json()["featuring"]["systemfeatures"] and r.json()["featuring"]["systemfeatures"]["pairing_type"] == "digest_auth_pairing":
-                        self.config["TV"]["protocol"] = "https://"
-                        self.config["TV"]["port"] = "1926"
+                        self.config["TV"]["protocol"] = "http://"
+                        self.config["TV"]["port"] = "1925"
                     else:
                         self.config["TV"]["protocol"] = "http://"
                         self.config["TV"]["port"] = "1925"
@@ -165,7 +165,7 @@ class Pylips:
 
     # returns True if already paired or using non-Android TVs.
     def check_if_paired(self):
-        if str(self.config["TV"]["protocol"])=="https://" and (len(str(self.config["TV"]["user"]))==0 or len(str(self.config["TV"]["pass"]))==0):
+        if str(self.config["TV"]["protocol"])=="http://" and (len(str(self.config["TV"]["user"]))==0 or len(str(self.config["TV"]["pass"]))==0):
             return False
         else:
             return True
@@ -199,9 +199,9 @@ class Pylips:
 
     # pairs with a TV
     def pair_request(self, data, err_count=0):
-        print("https://" + str(self.config["TV"]["host"]) + ":1926/"+str(self.config["TV"]["apiv"])+"/pair/request")
+        print("http://" + str(self.config["TV"]["host"]) + ":1925/"+str(self.config["TV"]["apiv"])+"/pair/request")
         response={}
-        r = session.post("https://" + str(self.config["TV"]["host"]) + ":1926/"+str(self.config["TV"]["apiv"])+"/pair/request", json=data, verify=False, timeout=2)
+        r = session.post("http://" + str(self.config["TV"]["host"]) + ":1925/"+str(self.config["TV"]["apiv"])+"/pair/request", json=data, verify=False, timeout=2)
         if r.json() is not None:
             if r.json()["error_id"] == "SUCCESS":
                 response=r.json()
@@ -235,7 +235,7 @@ class Pylips:
             if err_count > 0:
                 print("Resending pair confirm request")
             try:
-                r = session.post("https://" + str(self.config["TV"]["host"]) +":1926/"+str(self.config["TV"]["apiv"])+"/pair/grant", json=data, verify=False, auth=HTTPDigestAuth(self.config["TV"]["user"], self.config["TV"]["pass"]),timeout=2)
+                r = session.post("http://" + str(self.config["TV"]["host"]) +":1925/"+str(self.config["TV"]["apiv"])+"/pair/grant", json=data, verify=False, auth=HTTPDigestAuth(self.config["TV"]["user"], self.config["TV"]["pass"]),timeout=2)
                 print("Username for subsequent calls is: " + str(self.config["TV"]["user"]))
                 print("Password for subsequent calls is: " + str(self.config["TV"]["pass"]))
                 return print("The credentials are saved in the settings.ini file.")
