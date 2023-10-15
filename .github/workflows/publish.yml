@@ -8,6 +8,7 @@ jobs:
         steps:
             - name: checkout
             - uses: actions/checkout@v2
+            - name: no idea
             - uses: actions/setup-node@v1
               with:
                 node-version: 16
